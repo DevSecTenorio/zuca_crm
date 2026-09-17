@@ -2,12 +2,12 @@ import { apiClient } from './client';
 import type { GoalsProgress, ProspectingData, RepsKpiData } from '@/types/api';
 
 export async function getGoalsProgress(
-  year: number,
-  month: number,
+  from: string,
+  to: string,
   pipelineId?: string,
 ): Promise<GoalsProgress> {
   const { data } = await apiClient.get<GoalsProgress>('/dashboard/goals-progress', {
-    params: { year, month, pipelineId },
+    params: { from, to, pipelineId },
   });
   return data;
 }

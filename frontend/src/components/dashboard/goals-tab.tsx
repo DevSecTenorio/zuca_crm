@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -12,19 +12,20 @@ import {
   YAxis,
 } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useGoalsProgress } from '@/hooks/useInsights';
 import { formatCurrencyBRL } from '@/lib/format';
-import { MONTH_LABELS } from '@/lib/date';
 
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - 5 + i);
+function defaultFrom() {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d.toISOString().slice(0, 10);
+}
+
+function defaultTo() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function ProgressBar({ pct }: { pct: number | null }) {
   const value = pct === null ? 0 : Math.min(pct, 100);
@@ -40,11 +41,18 @@ function ProgressBar({ pct }: { pct: number | null }) {
 }
 
 export function GoalsTab({ pipelineId }: { pipelineId?: string }) {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [from, setFrom] = useState(defaultFrom());
+  const [to, setTo] = useState(defaultTo());
 
-  const { data, isLoading } = useGoalsProgress(year, month, pipelineId);
+  const filters = useMemo(
+    () => ({
+      from: new Date(`${from}T00:00:00`).toISOString(),
+      to: new Date(`${to}T23:59:59`).toISOString(),
+    }),
+    [from, to],
+  );
+
+  const { data, isLoading } = useGoalsProgress(filters.from, filters.to, pipelineId);
 
   const chartData = (data?.reps ?? []).map((r) => ({
     name: r.userName.split(' ')[0],
@@ -54,31 +62,15 @@ export function GoalsTab({ pipelineId }: { pipelineId?: string }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {MONTH_LABELS.map((label, index) => (
-              <SelectItem key={label} value={String(index + 1)}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-          <SelectTrigger className="w-24">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {YEAR_OPTIONS.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="mb-4 flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="goals-from">De</Label>
+          <Input id="goals-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="goals-to">Até</Label>
+          <Input id="goals-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+        </div>
       </div>
 
       {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}

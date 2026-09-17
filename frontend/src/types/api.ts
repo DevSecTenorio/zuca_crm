@@ -185,8 +185,8 @@ export interface RepGoalProgress extends SalesGoalEntry {
 }
 
 export interface GoalsProgress {
-  year: number;
-  month: number;
+  from: string;
+  to: string;
   reps: RepGoalProgress[];
   orgTotals: {
     targetValue: number;

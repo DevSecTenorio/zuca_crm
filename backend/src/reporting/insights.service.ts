@@ -70,15 +70,17 @@ export class InsightsService {
   async goalsProgress(
     orgId: string,
     user: AuthenticatedUser,
-    year: number,
-    month: number,
+    from: string,
+    to: string,
     pipelineId?: string,
   ) {
-    const reps = await this.goalsService.findForPeriod(
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    const reps = await this.goalsService.findForRange(
       orgId,
       user,
-      year,
-      month,
+      fromDate,
+      toDate,
     );
 
     const zeroTotals = {
@@ -91,11 +93,8 @@ export class InsightsService {
     };
 
     if (reps.length === 0) {
-      return { year, month, reps: [], orgTotals: zeroTotals };
+      return { from, to, reps: [], orgTotals: zeroTotals };
     }
-
-    const periodStart = new Date(Date.UTC(year, month - 1, 1));
-    const periodEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
     const filter = await this.resolvePipelineFilter(orgId, user, pipelineId);
     const rows = filter.blocked
@@ -108,8 +107,8 @@ export class InsightsService {
            ${filter.param ? filter.sql.replace('$PARAM', '$4') : ''}
            GROUP BY d.owner_id`,
           filter.param
-            ? [orgId, periodStart, periodEnd, filter.param]
-            : [orgId, periodStart, periodEnd],
+            ? [orgId, fromDate, toDate, filter.param]
+            : [orgId, fromDate, toDate],
         );
 
     const repsWithProgress = reps.map((r) => {
@@ -138,8 +137,8 @@ export class InsightsService {
     );
 
     return {
-      year,
-      month,
+      from,
+      to,
       reps: repsWithProgress,
       orgTotals: {
         ...totals,

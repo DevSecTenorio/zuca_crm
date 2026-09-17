@@ -63,15 +63,15 @@ export class ReportingController {
   @Get('goals-progress')
   getGoalsProgress(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('year') year: string,
-    @Query('month') month: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
     @Query('pipelineId') pipelineId?: string,
   ) {
     return this.insightsService.goalsProgress(
       user.orgId,
       user,
-      Number(year),
-      Number(month),
+      from,
+      to,
       pipelineId,
     );
   }

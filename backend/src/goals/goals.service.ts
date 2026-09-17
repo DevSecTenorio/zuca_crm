@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { SalesGoal } from './sales-goal.entity';
 import { UpsertGoalDto } from './dto/upsert-goal.dto';
 import { UsersService } from '../users/users.service';
@@ -50,6 +50,67 @@ export class GoalsService {
         targetCount: Number(goal?.targetCount ?? 0),
       };
     });
+  }
+
+  async findForRange(
+    orgId: string,
+    user: AuthenticatedUser,
+    from: Date,
+    to: Date,
+  ) {
+    const months = this.monthsInRange(from, to);
+    const years = [...new Set(months.map((m) => m.year))];
+    const goals =
+      years.length > 0
+        ? await this.goalRepository.find({ where: { orgId, year: In(years) } })
+        : [];
+    const matchedGoals = goals.filter((g) =>
+      months.some((m) => m.year === g.year && m.month === g.month),
+    );
+
+    const sumsByUser = new Map<
+      string,
+      { targetValue: number; targetCount: number }
+    >();
+    for (const g of matchedGoals) {
+      const cur = sumsByUser.get(g.userId) ?? {
+        targetValue: 0,
+        targetCount: 0,
+      };
+      cur.targetValue += Number(g.targetValue);
+      cur.targetCount += Number(g.targetCount);
+      sumsByUser.set(g.userId, cur);
+    }
+
+    if (user.role === UserRole.REP) {
+      const activeUser = await this.usersService.findOne(orgId, user.id);
+      const sums = sumsByUser.get(user.id) ?? {
+        targetValue: 0,
+        targetCount: 0,
+      };
+      return [{ userId: user.id, userName: activeUser.name, ...sums }];
+    }
+
+    const allUsers = await this.usersService.findAllForOrg(orgId);
+    const activeUsers = allUsers.filter((u) => u.status === UserStatus.ACTIVE);
+    return activeUsers.map((u) => {
+      const sums = sumsByUser.get(u.id) ?? { targetValue: 0, targetCount: 0 };
+      return { userId: u.id, userName: u.name, ...sums };
+    });
+  }
+
+  private monthsInRange(
+    from: Date,
+    to: Date,
+  ): { year: number; month: number }[] {
+    const months: { year: number; month: number }[] = [];
+    const cursor = new Date(from.getFullYear(), from.getMonth(), 1);
+    const end = new Date(to.getFullYear(), to.getMonth(), 1);
+    while (cursor <= end) {
+      months.push({ year: cursor.getFullYear(), month: cursor.getMonth() + 1 });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return months;
   }
 
   async upsert(orgId: string, dto: UpsertGoalDto) {

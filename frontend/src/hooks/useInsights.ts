@@ -3,10 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { getGoalsProgress, getProspecting, getRepsKpis } from '@/api/insights';
 
-export function useGoalsProgress(year: number, month: number, pipelineId?: string) {
+export function useGoalsProgress(from: string, to: string, pipelineId?: string) {
   return useQuery({
-    queryKey: ['insights', 'goals-progress', year, month, pipelineId],
-    queryFn: () => getGoalsProgress(year, month, pipelineId),
+    queryKey: ['insights', 'goals-progress', from, to, pipelineId],
+    queryFn: () => getGoalsProgress(from, to, pipelineId),
   });
 }
 
