@@ -1,31 +1,24 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import type { IncomingMessage, ServerResponse } from 'http';
-import * as express from 'express';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/setup-app';
 
-let cachedApp: express.Express | null = null;
+type RequestHandler = (req: IncomingMessage, res: ServerResponse) => void;
 
-async function getApp(): Promise<express.Express> {
-  if (!cachedApp) {
-    const expressInstance = express();
-    const app = await NestFactory.create(
-      AppModule,
-      new ExpressAdapter(expressInstance),
-    );
+let cachedHandler: RequestHandler | null = null;
+
+async function getHandler(): Promise<RequestHandler> {
+  if (!cachedHandler) {
+    const app = await NestFactory.create(AppModule);
     configureApp(app);
     await app.init();
-    cachedApp = expressInstance;
+    cachedHandler = app.getHttpAdapter().getInstance();
   }
-  return cachedApp;
+  return cachedHandler;
 }
 
-export default async function handler(
-  req: IncomingMessage,
-  res: ServerResponse,
-) {
-  const app = await getApp();
-  app(req, res);
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const instance = await getHandler();
+  instance(req, res);
 }
