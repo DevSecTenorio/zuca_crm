@@ -29,6 +29,7 @@ import { useDealActivities } from '@/hooks/useActivities';
 import { LogActivityForm } from '@/components/activities/log-activity-form';
 import { DealEditDialog } from '@/components/deals/deal-edit-dialog';
 import { LossReasonDialog } from '@/components/deals/loss-reason-dialog';
+import { AttachmentsPanel } from '@/components/attachments/attachments-panel';
 import { formatCurrencyBRL, formatDate, formatDateTime, getInitials } from '@/lib/format';
 import { ACTIVITY_TYPE_LABELS } from '@/lib/deal-stages';
 
@@ -278,6 +279,8 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
               )}
             </CardContent>
           </Card>
+
+          <AttachmentsPanel entityType="deal" entityId={deal.id} />
 
           <Card>
             <CardHeader>

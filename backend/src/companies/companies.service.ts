@@ -8,12 +8,14 @@ import { ILike, Repository } from 'typeorm';
 import { Company } from './company.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { AttachmentsService } from '../attachments/attachments.service';
 
 @Injectable()
 export class CompaniesService {
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
+    private readonly attachmentsService: AttachmentsService,
   ) {}
 
   async create(orgId: string, dto: CreateCompanyDto) {
@@ -56,6 +58,7 @@ export class CompaniesService {
 
   async remove(orgId: string, id: string) {
     const company = await this.findOne(orgId, id);
+    await this.attachmentsService.removeAllForEntity(orgId, 'company', id);
     await this.companyRepository.remove(company);
     return { success: true };
   }

@@ -6,6 +6,7 @@ import { IconArrowLeft, IconMail, IconMapPin, IconPhone, IconWorld } from '@tabl
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCompany } from '@/hooks/useCompanies';
 import { getInitials } from '@/lib/format';
+import { AttachmentsPanel } from '@/components/attachments/attachments-panel';
 
 function formatAddress(address: {
   cep?: string;
@@ -104,6 +105,10 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
             ))}
           </CardContent>
         </Card>
+
+        <div className="lg:col-span-3">
+          <AttachmentsPanel entityType="company" entityId={company.id} />
+        </div>
       </div>
     </div>
   );

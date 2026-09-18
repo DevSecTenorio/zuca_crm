@@ -21,6 +21,7 @@ import { Segment } from './catalogs/segment.entity';
 import { Product } from './catalogs/product.entity';
 import { AuditLog } from './audit/audit-log.entity';
 import { SalesGoal } from './goals/sales-goal.entity';
+import { Attachment } from './attachments/attachment.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ContactsModule } from './contacts/contacts.module';
@@ -32,6 +33,7 @@ import { PipelinesModule } from './pipelines/pipelines.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
 import { AuditModule } from './audit/audit.module';
 import { GoalsModule } from './goals/goals.module';
+import { AttachmentsModule } from './attachments/attachments.module';
 import { getDatabaseSslConfig } from './database/ssl';
 
 @Module({
@@ -60,6 +62,7 @@ import { getDatabaseSslConfig } from './database/ssl';
         Product,
         AuditLog,
         SalesGoal,
+        Attachment,
       ],
       migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
       synchronize: false,
@@ -76,6 +79,7 @@ import { getDatabaseSslConfig } from './database/ssl';
     ReportingModule,
     AuditModule,
     GoalsModule,
+    AttachmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

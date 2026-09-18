@@ -13,6 +13,7 @@ import { UpdateDealDto } from './dto/update-deal.dto';
 import { ActivitiesService } from '../activities/activities.service';
 import { PipelinesService } from '../pipelines/pipelines.service';
 import { AuditLogService } from '../audit/audit-log.service';
+import { AttachmentsService } from '../attachments/attachments.service';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
 
 const DEAL_RELATIONS = [
@@ -35,6 +36,7 @@ export class DealsService {
     private readonly activitiesService: ActivitiesService,
     private readonly pipelinesService: PipelinesService,
     private readonly auditLogService: AuditLogService,
+    private readonly attachmentsService: AttachmentsService,
   ) {}
 
   async create(orgId: string, user: AuthenticatedUser, dto: CreateDealDto) {
@@ -182,6 +184,7 @@ export class DealsService {
 
   async remove(orgId: string, user: AuthenticatedUser, id: string) {
     const deal = await this.findOne(orgId, user, id);
+    await this.attachmentsService.removeAllForEntity(orgId, 'deal', id);
     await this.dealRepository.remove(deal);
     await this.auditLogService.record(orgId, user.id, 'deal.deleted', {
       entityType: 'deal',

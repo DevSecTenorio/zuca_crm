@@ -18,6 +18,7 @@ import { Segment } from '../catalogs/segment.entity';
 import { Product } from '../catalogs/product.entity';
 import { AuditLog } from '../audit/audit-log.entity';
 import { SalesGoal } from '../goals/sales-goal.entity';
+import { Attachment } from '../attachments/attachment.entity';
 import { getDatabaseSslConfig } from './ssl';
 
 config();
@@ -45,6 +46,7 @@ export const AppDataSource = new DataSource({
     Product,
     AuditLog,
     SalesGoal,
+    Attachment,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

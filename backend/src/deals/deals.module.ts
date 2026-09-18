@@ -8,6 +8,7 @@ import { DealsController } from './deals.controller';
 import { ActivitiesModule } from '../activities/activities.module';
 import { PipelinesModule } from '../pipelines/pipelines.module';
 import { AuditModule } from '../audit/audit.module';
+import { AttachmentsModule } from '../attachments/attachments.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuditModule } from '../audit/audit.module';
     ActivitiesModule,
     PipelinesModule,
     AuditModule,
+    AttachmentsModule,
   ],
   providers: [DealsService],
   controllers: [DealsController],
