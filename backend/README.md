@@ -35,7 +35,7 @@ API disponível em `http://localhost:3000/api`. Swagger em `http://localhost:300
 
 ## Módulos (Fase 1)
 
-- `auth` — registro (cria organização + usuário admin), login, JWT
+- `auth` — login, JWT (usuários são criados apenas por admins em `/users`, sem autocadastro)
 - `users` — listagem de usuários da organização
 - `contacts` — CRUD de contatos
 - `companies` — CRUD de empresas
@@ -43,7 +43,7 @@ API disponível em `http://localhost:3000/api`. Swagger em `http://localhost:300
 - `activities` — notas, ligações, eventos automáticos de sistema (timeline)
 - `reporting` — endpoint `/dashboard` agregando pipeline + atividades recentes
 
-Todas as rotas (exceto `/auth/register` e `/auth/login`) exigem `Authorization: Bearer <token>` e são automaticamente escopadas por `org_id` a partir do usuário autenticado.
+Todas as rotas (exceto `/auth/login`) exigem `Authorization: Bearer <token>` e são automaticamente escopadas por `org_id` a partir do usuário autenticado.
 
 ## Login de teste (após seed)
 

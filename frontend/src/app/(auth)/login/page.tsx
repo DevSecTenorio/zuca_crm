@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -62,12 +61,6 @@ export default function LoginPage() {
             {login.isPending ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Ainda não tem conta?{' '}
-          <Link href="/register" className="font-medium text-foreground underline">
-            Criar organização
-          </Link>
-        </p>
       </CardContent>
     </Card>
   );

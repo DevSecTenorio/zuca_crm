@@ -17,7 +17,7 @@ App disponível em `http://localhost:3001` (ou porta padrão do Next se rodado i
 ```
 src/
 ├── app/
-│   ├── (auth)/          # login, register — layout centralizado, sem sidebar
+│   ├── (auth)/          # login — layout centralizado, sem sidebar
 │   └── (dashboard)/     # dashboard, contacts, companies, deals — protegido por AuthGuard
 ├── components/
 │   ├── ui/               # componentes Shadcn/ui
