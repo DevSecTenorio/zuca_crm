@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Company } from '@/types/api';
+import type { Company, CompanyAddress } from '@/types/api';
 
 export interface CompanyInput {
   razaoSocial: string;
@@ -9,6 +9,7 @@ export interface CompanyInput {
   website?: string;
   phone?: string;
   email?: string;
+  address?: CompanyAddress;
 }
 
 export async function listCompanies(search?: string): Promise<Company[]> {

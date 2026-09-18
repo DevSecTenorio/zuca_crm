@@ -2,10 +2,26 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { IconArrowLeft, IconMail, IconPhone, IconWorld } from '@tabler/icons-react';
+import { IconArrowLeft, IconMail, IconMapPin, IconPhone, IconWorld } from '@tabler/icons-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCompany } from '@/hooks/useCompanies';
 import { getInitials } from '@/lib/format';
+
+function formatAddress(address: {
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+}) {
+  const line1 = [address.logradouro, address.numero].filter(Boolean).join(', ');
+  const line2 = [address.bairro, address.cidade && address.estado ? `${address.cidade}/${address.estado}` : address.cidade || address.estado]
+    .filter(Boolean)
+    .join(' - ');
+  return [line1, address.complemento, line2, address.cep].filter(Boolean).join(' · ');
+}
 
 export default function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -51,6 +67,12 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
               {company.website && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <IconWorld size={16} /> {company.website}
+                </div>
+              )}
+              {company.address && Object.values(company.address).some(Boolean) && (
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <IconMapPin size={16} className="mt-0.5 shrink-0" />
+                  <span>{formatAddress(company.address)}</span>
                 </div>
               )}
             </div>

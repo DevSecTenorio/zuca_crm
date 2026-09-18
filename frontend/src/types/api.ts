@@ -33,6 +33,16 @@ export interface Product extends CatalogItem {
   sku?: string | null;
 }
 
+export interface CompanyAddress {
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+}
+
 export interface Company {
   id: string;
   razaoSocial: string;
@@ -43,6 +53,7 @@ export interface Company {
   website?: string | null;
   phone?: string | null;
   email?: string | null;
+  address?: CompanyAddress | null;
   seuZucaId?: string | null;
   createdAt: string;
   updatedAt: string;
