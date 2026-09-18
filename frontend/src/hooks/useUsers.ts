@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import {
   changeUserPassword,
   createUser,
+  deleteUser,
   listUsers,
   updateUser,
   type CreateUserInput,
@@ -56,5 +57,22 @@ export function useChangeUserPassword() {
       changeUserPassword(id, newPassword),
     onSuccess: () => toast.success('Senha alterada com sucesso'),
     onError: () => toast.error('Erro ao alterar senha'),
+  });
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USERS_KEY });
+      toast.success('Usuário removido');
+    },
+    onError: (error: unknown) => {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Erro ao remover usuário';
+      toast.error(message);
+    },
   });
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { IconKey, IconPencil, IconPlus } from '@tabler/icons-react';
+import { IconKey, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { UserFormDialog } from '@/components/admin/user-form-dialog';
 import { UserEditDialog } from '@/components/admin/user-edit-dialog';
 import { UserPasswordDialog } from '@/components/admin/user-password-dialog';
+import { DeleteUserDialog } from '@/components/admin/delete-user-dialog';
 import { useUsers } from '@/hooks/useUsers';
 import { useAuthStore } from '@/store/auth-store';
 import { getInitials } from '@/lib/format';
@@ -78,6 +79,16 @@ export default function UsersAdminPage() {
                   </Button>
                 }
               />
+              {user.id !== currentUser?.id && (
+                <DeleteUserDialog
+                  user={user}
+                  trigger={
+                    <Button variant="ghost" size="icon-sm" title="Excluir">
+                      <IconTrash size={14} className="text-destructive" />
+                    </Button>
+                  }
+                />
+              )}
             </div>
           ))}
           {!isLoading && users?.length === 0 && (

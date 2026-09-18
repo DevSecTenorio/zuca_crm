@@ -77,6 +77,32 @@ export class UsersService {
     return saved;
   }
 
+  async remove(orgId: string, actorId: string, id: string) {
+    if (id === actorId) {
+      throw new BadRequestException('Você não pode excluir sua própria conta');
+    }
+    const user = await this.findOne(orgId, id);
+
+    if (user.role === UserRole.ADMIN) {
+      const otherAdmins = await this.userRepository.count({
+        where: { orgId, role: UserRole.ADMIN },
+      });
+      if (otherAdmins <= 1) {
+        throw new BadRequestException(
+          'Não é possível excluir o único administrador da organização',
+        );
+      }
+    }
+
+    await this.userRepository.remove(user);
+    await this.auditLogService.record(orgId, actorId, 'user.deleted', {
+      entityType: 'user',
+      entityId: id,
+      metadata: { email: user.email, role: user.role },
+    });
+    return { success: true };
+  }
+
   async changePassword(
     orgId: string,
     actorId: string,

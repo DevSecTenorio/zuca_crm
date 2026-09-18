@@ -41,6 +41,10 @@ export async function changeUserPassword(id: string, newPassword: string): Promi
   await apiClient.patch(`/users/${id}/password`, { newPassword });
 }
 
+export async function deleteUser(id: string): Promise<void> {
+  await apiClient.delete(`/users/${id}`);
+}
+
 export interface OwnProfile extends OrgUser {
   avatarUrl: string | null;
   createdAt: string;
