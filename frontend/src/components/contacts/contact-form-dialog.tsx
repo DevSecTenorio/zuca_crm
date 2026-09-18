@@ -22,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCreateContact } from '@/hooks/useContacts';
+import { useCreateContact, useUpdateContact } from '@/hooks/useContacts';
 import { useCatalogItems } from '@/hooks/useCatalog';
+import type { Contact } from '@/types/api';
 
 const schema = z.object({
   name: z.string().min(1, 'Informe o nome'),
@@ -35,8 +36,22 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function ContactFormDialog({ trigger }: { trigger: React.ReactNode }) {
+interface ContactFormDialogProps {
+  trigger?: React.ReactNode;
+  contact?: Contact;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function ContactFormDialog({
+  trigger,
+  contact,
+  open,
+  onOpenChange,
+}: ContactFormDialogProps) {
+  const isEditMode = !!contact;
   const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
   const { data: sources } = useCatalogItems('lead-sources');
   const { data: campaigns } = useCatalogItems('campaigns');
   const {
@@ -48,27 +63,51 @@ export function ContactFormDialog({ trigger }: { trigger: React.ReactNode }) {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
+    if (open === undefined) return;
+    if (open) {
+      reset({
+        name: contact?.name ?? '',
+        email: contact?.email ?? '',
+        phone: contact?.phone ?? '',
+        sourceId: contact?.sourceId ?? undefined,
+        campaignId: contact?.campaignId ?? undefined,
+      });
+    }
+  }, [open, contact, reset]);
+
+  useEffect(() => {
     if (createContact.isSuccess) {
       reset();
     }
   }, [createContact.isSuccess, reset]);
 
   const onSubmit = (values: FormValues) => {
-    createContact.mutate({
+    const payload = {
       name: values.name,
       email: values.email || undefined,
       phone: values.phone || undefined,
       sourceId: values.sourceId || undefined,
       campaignId: values.campaignId || undefined,
-    });
+    };
+
+    if (isEditMode) {
+      updateContact.mutate(
+        { id: contact.id, payload },
+        { onSuccess: () => onOpenChange?.(false) },
+      );
+    } else {
+      createContact.mutate(payload);
+    }
   };
 
+  const isPending = isEditMode ? updateContact.isPending : createContact.isPending;
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo Contato</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Editar Contato' : 'Novo Contato'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -128,8 +167,8 @@ export function ContactFormDialog({ trigger }: { trigger: React.ReactNode }) {
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={createContact.isPending}>
-              {createContact.isPending ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </DialogFooter>
         </form>

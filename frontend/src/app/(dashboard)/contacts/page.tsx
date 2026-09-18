@@ -2,18 +2,28 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ContactFormDialog } from '@/components/contacts/contact-form-dialog';
+import { DeleteContactDialog } from '@/components/contacts/delete-contact-dialog';
 import { useContacts } from '@/hooks/useContacts';
 import { getInitials } from '@/lib/format';
+import type { Contact } from '@/types/api';
 
 export default function ContactsPage() {
   const [search, setSearch] = useState('');
   const { data: contacts, isLoading } = useContacts(search || undefined);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [deletingContact, setDeletingContact] = useState<Contact | null>(null);
 
   return (
     <div>
@@ -55,19 +65,20 @@ export default function ContactsPage() {
               <th className="px-4 py-3 font-medium">Telefone</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
               <th className="px-4 py-3 font-medium">Tags</th>
+              <th className="px-4 py-3 font-medium text-right">Ações</th>
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   Carregando...
                 </td>
               </tr>
             )}
             {!isLoading && contacts?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   Nenhum contato encontrado.
                 </td>
               </tr>
@@ -99,11 +110,42 @@ export default function ContactsPage() {
                     ))}
                   </div>
                 </td>
+                <td className="px-4 py-3 text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <IconDotsVertical size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => setEditingContact(contact)}>
+                        <IconPencil size={16} /> Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={() => setDeletingContact(contact)}
+                      >
+                        <IconTrash size={16} /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ContactFormDialog
+        contact={editingContact ?? undefined}
+        open={!!editingContact}
+        onOpenChange={(open) => !open && setEditingContact(null)}
+      />
+      <DeleteContactDialog
+        contact={deletingContact}
+        open={!!deletingContact}
+        onOpenChange={(open) => !open && setDeletingContact(null)}
+      />
     </div>
   );
 }
